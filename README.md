@@ -9,7 +9,7 @@
 ## client
 
 - `make client`
-- `cd demo/client && go run client.go --deplay 1ms`
+- `cd demo/client && go run client.go --delay 1ms`
 
 ## server
 

@@ -2,12 +2,13 @@ package etcd
 
 import (
 	"context"
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/mvcc/mvccpb"
-	gResolver "google.golang.org/grpc/resolver"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/mvcc/mvccpb"
+	gResolver "google.golang.org/grpc/resolver"
 )
 
 const schema = "im"

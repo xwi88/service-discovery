@@ -23,7 +23,7 @@ var (
 	endPoints = []string{
 		"http://127.0.0.1:2379",
 	}
-	Delay       = flag.Duration("delay", time.Second, "delay")
+	Delay       = flag.Duration("delay", time.Second, "delay time Duration")
 	Endpoints   = flag.String("endpoints", strings.Join(endPoints, ","), "etcd endpoints")
 	ServiceName = flag.String("serviceName", "demand:engine", "service name")
 )
