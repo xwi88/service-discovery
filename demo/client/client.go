@@ -43,7 +43,7 @@ func main() {
 	for t := range ticker.C {
 		client := pb.NewGreeterClient(conn)
 		resp, err := client.SayHello(context.Background(),
-			&pb.HelloRequest{NodeName: fmt.Sprintf("[pid=%v] client", pid),
+			&pb.HelloRequest{NodeName: fmt.Sprintf("client-go [pid=%v]", pid),
 				Name: "world " + strconv.Itoa(time.Now().Second())})
 		if err == nil {
 			fmt.Printf("%v: Reply is %s\n", t, resp.String())

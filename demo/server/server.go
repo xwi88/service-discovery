@@ -28,7 +28,7 @@ var (
 
 	ServiceName      = flag.String("serviceName", "demand:engine", "service name")
 	Port             = flag.Int("port", 50051, "listening port")
-	NodeName         = flag.String("nodeName", "server", "server name")
+	NodeName         = flag.String("nodeName", "", "server name")
 	RegisterInterval = flag.Duration("internal", time.Second*10, "register interval")
 
 	replyAddr = ""
@@ -43,7 +43,7 @@ type server struct {
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("Received: %v", in.String())
-	return &pb.HelloReply{NodeName: fmt.Sprintf("[pid=%v] %v", s.pid, *NodeName),
+	return &pb.HelloReply{NodeName: fmt.Sprintf("server-go [pid=%v] %v", s.pid, *NodeName),
 		Message: "Receive client msg: " + in.GetName(),
 		Ip:      replyAddr}, nil
 }
