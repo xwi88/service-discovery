@@ -21,10 +21,6 @@ import (
 )
 
 var (
-	//endPoints = []string{
-	//	"http://10.14.41.51:2379",
-	//	"http://10.14.41.52:2379",
-	//	"http://10.14.41.53:2379"}
 	endPoints = []string{
 		"http://127.0.0.1:2379",
 	}
@@ -41,14 +37,15 @@ var (
 // server is used to implement helloworld.GreeterServer.
 type server struct {
 	pb.UnimplementedGreeterServer
+	pid int
 }
 
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	log.Printf("Received: %v", in.GetName())
 	log.Printf("Received: %v", in.String())
-	return &pb.HelloReply{NodeName: *NodeName, Message: "Hello " + in.GetName(),
-		Ip: replyAddr}, nil
+	return &pb.HelloReply{NodeName: fmt.Sprintf("[pid=%v] %v", s.pid, *NodeName),
+		Message: "Receive client msg: " + in.GetName(),
+		Ip:      replyAddr}, nil
 }
 
 func main() {
@@ -62,15 +59,17 @@ func main() {
 	registerInterval := *RegisterInterval
 	endPoints := *Endpoints
 
-	fmt.Printf("ip:%v, serviceAddr: %v, serviceName: %v, registerInterval: %v,\nendPoints:%v\n",
-		localIP, serviceAddr, serviceName, registerInterval, endPoints)
+	pid := os.Getpid()
+
+	fmt.Printf("pid: %v, ip:%v, serviceAddr: %v, serviceName: %v, registerInterval: %v, endPoints:%v\n",
+		pid, localIP, serviceAddr, serviceName, registerInterval, endPoints)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &server{})
+	pb.RegisterGreeterServer(s, &server{pid: pid})
 
 	go etcd.Register(endPoints,
 		serviceName,
@@ -79,17 +78,25 @@ func main() {
 	)
 
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGQUIT)
+	// SIGKILL 和 SIGSTOP Neither of these signals can be captured by the application,
+	// nor can they be blocked or ignored by the operating system.
+	// kill -9 pid => SIGKILL
+	//os.Interrupt, os.Kill, syscall.SIGUSR1, syscall.SIGUSR2
+	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGUSR1, syscall.SIGUSR2)
 	go func() {
-		s := <-ch
-		etcd.UnRegister(serviceName, serviceAddr)
-
-		if i, ok := s.(syscall.Signal); ok {
-			os.Exit(int(i))
-		} else {
-			os.Exit(0)
+		for s := range ch {
+			switch s {
+			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM:
+				etcd.UnRegister(serviceName, serviceAddr)
+				os.Exit(int(s.(syscall.Signal)))
+			case syscall.SIGUSR1:
+				log.Printf("signal:usr1 %v", s)
+			case syscall.SIGUSR2:
+				log.Printf("signal:usr2 %v", s)
+			default:
+				log.Printf("signal:other %v", s)
+			}
 		}
-
 	}()
 
 	if err := s.Serve(lis); err != nil {

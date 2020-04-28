@@ -11,17 +11,18 @@ ldflagsDebug=""
 # -s -w
 ldflagsRelase="-s -w"
 
-#buildTags=""
-buildTags="jsoniter"
+buildTags=""
+#buildTags="jsoniter"
 
 .PHONY: proto
 
-defualt: app
+defualt: demo-default
 
-all: proto app app-darwin app-linux
+all: proto demo-default
 
 #protoc -I proto/helloworld/ proto/helloworld/helloworld.proto --go_out=plugins=grpc:helloworld
 #protoc -I proto/ proto/helloworld.proto --go_out=plugins=grpc:helloworld
+
 clean:
 	rm -rf pb/go/model/*
 	rm -rf pb/go/service/*
@@ -40,20 +41,28 @@ java:
 grpc-java:
 	protoc -I proto/helloworld helloworld.proto --java_out=plugins=grpc:pb/java/service
 
-app:
-	go build -v -mod=vendor -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/${CMD_APP_NAME} ./cmd/${CMD_APP_DIR}
-	@echo "Done app built remain gdb info"
+clean-demo:
+	rm build/bin/demo_*
 
+demo-default:
+	mkdir -p build/bin
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client ./demo/client/client.go
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_server ./demo/server/server.go
+	@echo "Done demo built"
 
-app-darwin:
+demo-darwin:
+	mkdir -p build/bin
 	export CGO_ENABLED=0 && export GOOS=darwin && export GOARCH=amd64 && \
-	go build -v -mod=vendor -tags ${buildTags} -ldflags ${ldflagsRelase} -o ./build/bin/${CMD_APP_NAME}-darwin ./cmd/${CMD_APP_DIR}
-	@echo "Done app built for darwin"
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client_darwin ./demo/client/client.go
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_server_darwin ./demo/server/server.go
+	@echo "Done demo built for darwin"
 
-app-linux:
+demo-linux:
+	mkdir -p build/bin
 	export CGO_ENABLED=0 && export GOOS=linux && export GOARCH=amd64 && \
-	go build -v -mod=vendor -tags ${buildTags} -ldflags ${ldflagsRelase} -o ./build/bin/${CMD_APP_NAME}-linux ./cmd/${CMD_APP_DIR}
-	@echo "Done app built for linux"
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client_linux ./demo/client/client.go
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_server_linux ./demo/server/server.go
+	@echo "Done demo built for linux"
 
 server1:
 	cd demo/server && \

@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -16,10 +17,6 @@ import (
 )
 
 var (
-	//endPoints = []string{
-	//	"http://10.14.41.51:2379",
-	//	"http://10.14.41.52:2379",
-	//	"http://10.14.41.53:2379"}
 	endPoints = []string{
 		"http://127.0.0.1:2379",
 	}
@@ -40,13 +37,14 @@ func main() {
 		panic(err)
 	}
 
+	pid := os.Getpid()
+
 	ticker := time.NewTicker(*Delay)
 	for t := range ticker.C {
-		//dial(conn)
-		fmt.Printf("%v\n", t)
 		client := pb.NewGreeterClient(conn)
-		resp, err := client.SayHello(context.Background(), &pb.HelloRequest{Name: "world " +
-			strconv.Itoa(time.Now().Second())})
+		resp, err := client.SayHello(context.Background(),
+			&pb.HelloRequest{NodeName: fmt.Sprintf("[pid=%v] client", pid),
+				Name: "world " + strconv.Itoa(time.Now().Second())})
 		if err == nil {
 			fmt.Printf("%v: Reply is %s\n", t, resp.String())
 		} else {

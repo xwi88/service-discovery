@@ -39,7 +39,7 @@ func Register(endPoints, name string, addr string, ttl time.Duration) error {
 			} else {
 				// do nothing
 			}
-			log.Printf("ticker Register")
+			log.Printf("ticker Register use lease: %v", ttl)
 			<-ticker.C
 		}
 	}()

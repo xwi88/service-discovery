@@ -11,7 +11,7 @@ import (
 	gResolver "google.golang.org/grpc/resolver"
 )
 
-const schema = "im"
+const schema = "services"
 
 var cli *clientv3.Client
 
