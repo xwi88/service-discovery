@@ -30,7 +30,7 @@ var (
 	Delay       = flag.Duration("delay", time.Second, "delay time Duration")
 	Endpoints   = flag.String("endpoints", strings.Join(endPoints, ","), "etcd endpoints")
 	Env         = flag.String("env", "", "dev in (local, dev) default local")
-	ServiceName = flag.String("serviceName", "demand:engine", "service name")
+	ServiceName = flag.String("serviceName", "demand:engine/v1", "service name")
 )
 
 func main() {

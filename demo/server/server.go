@@ -34,7 +34,7 @@ var (
 
 	Endpoints        = flag.String("endpoints", strings.Join(endPoints, ","), "etcd endpoints")
 	Env              = flag.String("env", "", "dev in (local, dev) default local")
-	ServiceName      = flag.String("serviceName", "demand:engine", "service name")
+	ServiceName      = flag.String("serviceName", "demand:engine/v1", "service name")
 	Port             = flag.Int("port", 50051, "listening port")
 	NodeName         = flag.String("nodeName", "", "server name")
 	RegisterInterval = flag.Duration("internal", time.Second*10, "register interval")
@@ -68,9 +68,10 @@ func main() {
 		}
 	}
 
+	scheme := "http"
 	localIP := utils.LocalIP()
 	port := strconv.Itoa(*Port)
-	serviceAddr := fmt.Sprintf("%v:%v", localIP, port)
+	serviceAddr := fmt.Sprintf("%v://%v:%v", scheme, localIP, port)
 	replyAddr = serviceAddr
 
 	serviceName := *ServiceName
