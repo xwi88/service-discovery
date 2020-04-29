@@ -67,7 +67,11 @@ func (r *resolver) watch(keyPrefix string) {
 		log.Println(err)
 	} else {
 		for i := range getResp.Kvs {
-			addrList = append(addrList, gResolver.Address{Addr: strings.TrimPrefix(string(getResp.Kvs[i].Key), keyPrefix)})
+			originAddress := strings.TrimPrefix(string(getResp.Kvs[i].Key), keyPrefix)
+			address := strings.Split(originAddress, "//")
+			if len(address) == 2 {
+				addrList = append(addrList, gResolver.Address{Addr: address[1]})
+			}
 		}
 	}
 
@@ -76,7 +80,14 @@ func (r *resolver) watch(keyPrefix string) {
 	rch := cli.Watch(context.Background(), keyPrefix, clientv3.WithPrefix())
 	for n := range rch {
 		for _, ev := range n.Events {
-			addr := strings.TrimPrefix(string(ev.Kv.Key), keyPrefix)
+			//addr := strings.TrimPrefix(string(ev.Kv.Key), keyPrefix)
+			originAddress := strings.TrimPrefix(string(ev.Kv.Key), keyPrefix)
+			address := strings.Split(originAddress, "//")
+			addr := ""
+			if len(address) == 2 {
+				addr = address[1]
+			}
+
 			switch ev.Type {
 			case mvccpb.PUT:
 				if !exist(addrList, addr) {
