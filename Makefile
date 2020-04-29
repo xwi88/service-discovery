@@ -46,50 +46,44 @@ clean-demo:
 
 demo-default:
 	mkdir -p build/bin
-	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client ./demo/client/client.go
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client ./demo/client/client.go && \
 	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_server ./demo/server/server.go
 	@echo "Done demo built"
 
 demo-darwin:
 	mkdir -p build/bin
 	export CGO_ENABLED=0 && export GOOS=darwin && export GOARCH=amd64 && \
-	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client_darwin ./demo/client/client.go
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client_darwin ./demo/client/client.go && \
 	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_server_darwin ./demo/server/server.go
 	@echo "Done demo built for darwin"
 
 demo-linux:
 	mkdir -p build/bin
 	export CGO_ENABLED=0 && export GOOS=linux && export GOARCH=amd64 && \
-	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client_linux ./demo/client/client.go
+	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_client_linux ./demo/client/client.go && \
 	go build -v -tags ${buildTags} -ldflags ${ldflagsDebug} -o ./build/bin/demo_server_linux ./demo/server/server.go
 	@echo "Done demo built for linux"
 
 server1:
-	cd demo/server && \
-	go run server.go --port 50051
+	cd demo/server && go run server.go --port 50051
 
 server2:
-	cd demo/server && \
-	go run server.go --port 50052
+	cd demo/server && go run server.go --port 50052
 
 server3:
-	cd demo/server && \
-	go run server.go --port 50053
+	cd demo/server && go run server.go --port 50053
 
 client:
 	cd demo/client && go run client.go
 
 server1-dev:
-	cd demo/server && \
-	go run server.go --port 50051 -env dev
+	cd demo/server && go run server.go --port 50051 -env dev
 
 server2-dev:
-	cd demo/server && \
-	go run server.go --port 50052 -env dev
+	cd demo/server && go run server.go --port 50052 -env dev
 
 server3-dev:
-	cd demo/server && \
-	go run server.go --port 50053 -env dev
+	cd demo/server && go run server.go --port 50053 -env dev
 
 client-dev:
 	cd demo/client && go run client.go -env dev
