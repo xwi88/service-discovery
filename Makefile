@@ -77,5 +77,19 @@ server3:
 	go run server.go --port 50053
 
 client:
-	cd demo/client && \
-    go run client.go
+	cd demo/client && go run client.go
+
+server1-dev:
+	cd demo/server && \
+	go run server.go --port 50051 -env dev
+
+server2-dev:
+	cd demo/server && \
+	go run server.go --port 50052 -env dev
+
+server3-dev:
+	cd demo/server && \
+	go run server.go --port 50053 -env dev
+
+client-dev:
+	cd demo/client && go run client.go -env dev

@@ -21,11 +21,19 @@ import (
 )
 
 var (
+	// local nodes
 	endPoints = []string{
 		"http://127.0.0.1:2379",
 	}
-	Endpoints = flag.String("endpoints", strings.Join(endPoints, ","), "etcd endpoints")
+	// dev cluster
+	devEndPoints = []string{
+		"http://10.14.41.51:2379",
+		"http://10.14.41.52:2379",
+		"http://10.14.41.53:2379",
+	}
 
+	Endpoints        = flag.String("endpoints", strings.Join(endPoints, ","), "etcd endpoints")
+	Env              = flag.String("env", "", "dev in (local, dev) default local")
 	ServiceName      = flag.String("serviceName", "demand:engine", "service name")
 	Port             = flag.Int("port", 50051, "listening port")
 	NodeName         = flag.String("nodeName", "", "server name")
@@ -50,6 +58,16 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 
 func main() {
 	flag.Parse()
+
+	useEndpoints := *Endpoints
+	if Env != nil {
+		if *Env == "dev" {
+			useEndpoints = strings.Join(devEndPoints, ",")
+		} else {
+			useEndpoints = strings.Join(endPoints, ",")
+		}
+	}
+
 	localIP := utils.LocalIP()
 	port := strconv.Itoa(*Port)
 	serviceAddr := fmt.Sprintf("%v:%v", localIP, port)
@@ -57,12 +75,11 @@ func main() {
 
 	serviceName := *ServiceName
 	registerInterval := *RegisterInterval
-	endPoints := *Endpoints
 
 	pid := os.Getpid()
 
 	fmt.Printf("pid: %v, ip:%v, serviceAddr: %v, serviceName: %v, registerInterval: %v, endPoints:%v\n",
-		pid, localIP, serviceAddr, serviceName, registerInterval, endPoints)
+		pid, localIP, serviceAddr, serviceName, registerInterval, useEndpoints)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", port))
 	if err != nil {
@@ -71,11 +88,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterGreeterServer(s, &server{pid: pid})
 
-	go etcd.Register(endPoints,
-		serviceName,
-		serviceAddr,
-		registerInterval,
-	)
+	go etcd.Register(useEndpoints, serviceName, serviceAddr, registerInterval)
 
 	ch := make(chan os.Signal, 1)
 	// SIGKILL 和 SIGSTOP Neither of these signals can be captured by the application,
