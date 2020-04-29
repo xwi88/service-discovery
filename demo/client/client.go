@@ -48,28 +48,24 @@ func main() {
 	r := etcd.NewResolver(useEndpoints)
 	resolver.Register(r)
 	// Use endpoint from "scheme://authority/endpoint" as the default
-	//conn, err := grpc.Dial(r.Scheme()+"://authority/"+*ServiceName,
-	//	grpc.WithBalancerName("round_robin"),
-	//	//grpc.WithTimeout(time.Duration(time.Second*5)),
-	//	grpc.WithInsecure())
-	//
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer func() {
-	//	if conn != nil {
-	//		_ = conn.Close()
-	//	}
-	//}()
+	conn, err := grpc.Dial(r.Scheme()+"://authority/"+*ServiceName,
+		grpc.WithBalancerName("round_robin"),
+		//grpc.WithTimeout(time.Duration(time.Second*5)),
+		grpc.WithInsecure())
+
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if conn != nil {
+			_ = conn.Close()
+		}
+	}()
 
 	pid := os.Getpid()
 
 	ticker := time.NewTicker(*Delay)
 	for t := range ticker.C {
-		conn, err := grpc.Dial(r.Scheme()+"://authority/"+*ServiceName,
-			grpc.WithBalancerName("round_robin"),
-			//grpc.WithTimeout(time.Duration(time.Second*5)),
-			grpc.WithInsecure())
 
 		client := pb.NewGreeterClient(conn)
 		resp, err := client.SayHello(context.Background(),
