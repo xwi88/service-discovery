@@ -10,10 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xwi88.com/service-discovery/discovery/etcd"
-	"github.com/xwi88.com/service-discovery/pb/go/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
+
+	"github.com/xwi88.com/service-discovery/discovery/etcd"
+	"github.com/xwi88.com/service-discovery/pb/go"
 )
 
 var (
@@ -50,7 +51,7 @@ func main() {
 	// Use endpoint from "scheme://authority/endpoint" as the default
 	conn, err := grpc.Dial(r.Scheme()+"://authority/"+*ServiceName,
 		grpc.WithBalancerName("round_robin"),
-		//grpc.WithTimeout(time.Duration(time.Second*5)),
+		// grpc.WithTimeout(time.Duration(time.Second*5)),
 		grpc.WithInsecure())
 
 	if err != nil {
@@ -67,9 +68,9 @@ func main() {
 	ticker := time.NewTicker(*Delay)
 	for t := range ticker.C {
 
-		client := pb.NewGreeterClient(conn)
+		client := entry.NewGreeterClient(conn)
 		resp, err := client.SayHello(context.Background(),
-			&pb.HelloRequest{
+			&entry.HelloRequest{
 				NodeName: fmt.Sprintf("client-go [pid=%v]", pid),
 				Name:     "world " + strconv.Itoa(time.Now().Second())})
 		if err == nil {

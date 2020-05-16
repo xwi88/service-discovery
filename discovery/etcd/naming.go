@@ -70,5 +70,6 @@ func withAlive(name string, addr string, ttl time.Duration) error {
 func UnRegister(name string, addr string) {
 	if cli != nil {
 		cli.Delete(context.Background(), "/"+schema+"/"+name+"/"+addr)
+		cli.Close()
 	}
 }

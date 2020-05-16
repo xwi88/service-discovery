@@ -24,22 +24,21 @@ all: proto demo-default
 #protoc -I proto/ proto/helloworld.proto --go_out=plugins=grpc:helloworld
 
 clean:
-	rm -rf pb/go/model/*
-	rm -rf pb/go/service/*
+	rm -rf pb/go/*
 	rm -rf pb/java/*
 
 proto:
-	protoc -I proto/ --go_out=pb/go/model/ --go_opt=paths=source_relative proto/*.proto
+	protoc -I proto/ --go_out=pb/go/ --go_opt=paths=source_relative proto/*_abi.proto
 	@echo "Done proto built"
 
 grpc:
-	protoc -I proto helloworld.proto --go_out=plugins=grpc:pb/go/service
+	protoc -I proto helloworld_rpc.proto --go_out=plugins=grpc:pb/go
 
 java:
-	protoc -I=proto --java_out=pb/java helloworld.proto
+	protoc -I=proto --java_out=pb/java helloworld_abi.proto
 
 grpc-java:
-	protoc -I proto/helloworld helloworld.proto --java_out=plugins=grpc:pb/java/service
+	protoc -I proto/helloworld helloworld_rpc.proto --java_out=plugins=grpc:pb/java
 
 clean-demo:
 	rm build/bin/demo_*
@@ -87,3 +86,6 @@ server3-dev:
 
 client-dev:
 	cd demo/client && go run client.go -env dev
+
+server-make:
+	./build/bin/demo_server --port 50054
