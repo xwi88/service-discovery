@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/resolver"
 
 	"github.com/xwi88.com/service-discovery/discovery/etcd"
-	"github.com/xwi88.com/service-discovery/pb/go"
+	entry "github.com/xwi88.com/service-discovery/pb/go"
 )
 
 var (
@@ -67,7 +67,6 @@ func main() {
 
 	ticker := time.NewTicker(*Delay)
 	for t := range ticker.C {
-
 		client := entry.NewGreeterClient(conn)
 		resp, err := client.SayHello(context.Background(),
 			&entry.HelloRequest{
